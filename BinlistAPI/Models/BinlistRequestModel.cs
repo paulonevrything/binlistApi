@@ -10,6 +10,7 @@ namespace BinlistAPI.Models
     {
         [Required]
         [StringLength(16, ErrorMessage = "Card IIN must be 6 or 8 digits long", MinimumLength = 8)]
+        [RegularExpression(@"^[0-9]*$", ErrorMessage = "Invalid IIN number supplied, IIN number must be a numbers only with no special characters")]
         public string cardIin { get; set; }
     }
 }

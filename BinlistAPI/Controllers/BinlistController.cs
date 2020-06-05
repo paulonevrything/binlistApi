@@ -27,7 +27,7 @@ namespace BinlistAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetBinDetails([FromBody] BinlistRequestModel binlistRequest)
+        public async Task<IActionResult> GetBinDetails([FromQuery] BinlistRequestModel binlistRequest)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
