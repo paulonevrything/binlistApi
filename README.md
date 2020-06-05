@@ -1,6 +1,6 @@
-# Hahn.ApplicatonProcess.Application
+# BinlistApi
 
-This is an API wrapper for binlist.net. Written in .NET Core
+This is an API wrapper for [binlist.net](https://binlist.net/). Written in .NET Core
 
 ## Installation
 
