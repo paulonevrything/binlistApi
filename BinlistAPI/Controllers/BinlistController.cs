@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BinlistAPI.Models;
 using BinlistAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,12 +23,16 @@ namespace BinlistAPI.Controllers
 
         [HttpGet]
         [Route("GetBinDetails")]
-        public async Task<IActionResult> GetBinDetails([FromBody] string cardIin)
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetBinDetails([FromBody] BinlistRequestModel binlistRequest)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            return Ok(await _binlistService.GetBinDetails(cardIin));
+            return Ok(await _binlistService.GetBinDetails(binlistRequest.cardIin));
         }
     }
 }
