@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BinlistAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -59,6 +60,8 @@ namespace BinlistAPI
                     }
                 });
             });
+
+            services.AddTransient<IBinlistService, BinlistService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
