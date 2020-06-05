@@ -7,6 +7,7 @@ using RestSharp;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace BinlistAPI.Services
 {
@@ -14,14 +15,39 @@ namespace BinlistAPI.Services
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<BinlistService> _logger;
-        public BinlistService(IConfiguration configuration, ILogger<BinlistService> logger)
+        private readonly IMemoryCache _memoryCache;
+        public BinlistService(IConfiguration configuration, ILogger<BinlistService> logger, IMemoryCache memoryCache)
         {
             _configuration = configuration;
             _logger = logger;
+            _memoryCache = memoryCache;
         }
         public async Task<BinlistResponseModel> GetBinDetails(string cardIin)
         {
-            BinlistResponseModel result = new BinlistResponseModel();
+
+            // Check cache for iin key
+            var cacheKey = cardIin;
+
+            if(!_memoryCache.TryGetValue(cacheKey, out BinlistResponseModel result))
+            {
+                result = await CallBinlistNet(cardIin);
+
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(6),
+                    Priority = CacheItemPriority.Normal,
+                    SlidingExpiration = TimeSpan.FromMinutes(5)
+                };
+
+                _memoryCache.Set(cacheKey, result, cacheExpiryOptions);
+
+            }
+            return result;
+        }
+
+        private async Task<BinlistResponseModel> CallBinlistNet(string cardIin)
+        {
+            BinlistResponseModel apirResult = new BinlistResponseModel();
 
             var binlistBaseUrl = _configuration["BinlistBaseUrl"];
 
@@ -35,15 +61,14 @@ namespace BinlistAPI.Services
 
                 _logger.LogInformation($"[BinlistService][GetBinlist][ApiResponse] {response.Content}");
 
-                result = JsonConvert.DeserializeObject<BinlistResponseModel>(response.Content);
+                apirResult = JsonConvert.DeserializeObject<BinlistResponseModel>(response.Content);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"[BinlistService][GetBinlist] An error occured while making request {ex.Message} {ex.InnerException}");
             }
 
-            return result;
-
+            return apirResult;
         }
     }
 }
